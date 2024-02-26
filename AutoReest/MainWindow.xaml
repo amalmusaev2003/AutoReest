@@ -1,0 +1,15 @@
+﻿<Window x:Class="AutoReest.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AutoReest"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <TextBox Height="50" Margin="0,117,0,267" Width="200" FontSize="14" 
+  Text="Choose pdf's" HorizontalAlignment="Center" TextAlignment="Center" Foreground="#FFFD7604" BorderBrush="White" />
+
+        <Button Content="Explore" Click="LoadBtn_Click" Width="60" Height="30" Background="#FFFFA400" Foreground="White" />
+    </Grid>
+</Window>
