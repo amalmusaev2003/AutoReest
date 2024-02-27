@@ -28,71 +28,88 @@ namespace AutoReest
             ProcessPdf();
         }
 
+
         private void ProcessPdf()
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
+
             StringBuilder sb = new StringBuilder();
-            
-            string codePattern = @"^11-10/.*$";
-            string changesPattern = @"^Изм";
-            string sep = "[\n ]";
+
             openFileDialog.Filter = "PDF Files (*.pdf)|*.pdf|All Files (*.*)|*.*";
 
             if (openFileDialog.ShowDialog() == true)
             {
                 string filePath = openFileDialog.FileName;
-                using(PdfReader reader = new PdfReader(filePath))
+                using (PdfReader reader = new PdfReader(filePath))
                 {
-                    for(int pNum = 1; pNum < reader.NumberOfPages; pNum++)
+                    for (int pNum = 1; pNum < reader.NumberOfPages; pNum++)
                     {
                         ITextExtractionStrategy strategy = new SimpleTextExtractionStrategy();
                         string text = PdfTextExtractor.GetTextFromPage(reader, pNum, strategy);
                         text = Encoding.UTF8.GetString(ASCIIEncoding.Convert(Encoding.Default, Encoding.UTF8, Encoding.Default.GetBytes(text)));
-                        sb.Append(text);   
+                        sb.Append(text);
                     }
                 }
 
             }
 
-            /* 
-            Testing how our lib exrtract info to the txt file
-            
-            using (StreamWriter outputFile = new StreamWriter(System.IO.Path.Combine("C:/Users/amusaev/Desktop/task", "WriteFile.txt")))
+            //Testing how our lib exrtract info to the txt file
+
+            using (StreamWriter outputFile = new StreamWriter(System.IO.Path.Combine("C:/Users/amusaev/Desktop/task", "File3.txt")))
             {
                 outputFile.WriteLine(sb);
-            }*/
-
-            // Extract code 
-            string[] ourText = sb.ToString().Split('\n');
-            string code = "";
-            int changes = 0;
-            string[] words = Regex.Split(sb.ToString(), sep);
-
-            
-
-            foreach (string line in words)
-            {
-                if (Regex.IsMatch(line, codePattern))
-                {
-                    code = line;
-                }
-
-                string[] parts = line.Split(' ');
-
-                if (parts.Length == 4)
-                {
-                    int changeNumber = int.Parse(parts[0]);
-
-                    if (changeNumber > changes)
-                    {
-                        changes = changeNumber;
-                    }
-                }
             }
 
+            // Extract code
+            MessageBox.Show(GetCode(sb.ToString()));
 
-            MessageBox.Show(code);
-            MessageBox.Show(Convert.ToString(changes));
+
+            //Extract last number of changes
+            MessageBox.Show(GetRevisionNumber(sb.ToString()));
+
+
+        }
+        private string GetCode(string text)
+        {
+            /*TODO:
+             [1] - разобраться почему анализ текста начинается не сначала файла и исправить это
+             [2] - Дать возможность пользователю добавить свой паттерн
+            */
+            string codePattern = @"^.+-[^-]+-[^-]+$";
+            string code = "";
+            string[] words = Regex.Split(text, " ");
+
+            foreach (string word in words)
+            {
+                if (Regex.IsMatch(word, codePattern))
+                {
+                    code = word;
+                }
+
+            }
+            return code;
+        }
+        private string GetRevisionNumber(string text)
+        {
+            /*TODO:
+             [1] - Протестировать текущий паттерн для первого файла
+             [2] - Реализовать возможность вариировать шаблоны ???
+            */
+            string tablePattern = @"^(\d)\s.+(\d{1,2}\.\d{1,2}\.\d{2,4})";
+            string revision = "";
+            string[] lines = Regex.Split(text, "\n");
+            Array.Reverse(lines);
+
+            foreach (string line in lines)
+            {
+                if (Regex.IsMatch(line, tablePattern))
+                {
+                    Match match = Regex.Match(text, tablePattern);
+                    revision = match.Groups[1].Value;
+                }
+
+            }
+            return Convert.ToString(revision);
         }
 
     }
