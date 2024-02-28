@@ -7,9 +7,7 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <TextBox Height="50" Margin="0,117,0,267" Width="200" FontSize="14" 
-  Text="Choose pdf's" HorizontalAlignment="Center" TextAlignment="Center" Foreground="#FFFD7604" BorderBrush="White" />
-
+        <TextBox x:Name="txtInput"/>
         <Button Content="Explore" Click="LoadBtn_Click" Width="60" Height="30" Background="#FFFFA400" Foreground="White" />
     </Grid>
 </Window>

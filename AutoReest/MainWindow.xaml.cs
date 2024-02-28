@@ -25,91 +25,99 @@ namespace AutoReest
 
         private void LoadBtn_Click(object sender, RoutedEventArgs e)
         {
-            ProcessPdf();
+            /*TODO:
+             [1] - Разобраться как выбирать папку с файлами
+             */
+
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "PDF Files (*.pdf)|*.pdf|All Files (*.*)|*.*";
+
+            // Отображение диалогового окна
+            if (dialog.ShowDialog() == true)
+            {
+                string selectedFolderPath = dialog.FileName;
+
+                ProcessPdf(selectedFolderPath);
+            }
         }
 
 
-        private void ProcessPdf()
+        private void ProcessPdf(string selectedFolderPath)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-
             StringBuilder sb = new StringBuilder();
-
-            openFileDialog.Filter = "PDF Files (*.pdf)|*.pdf|All Files (*.*)|*.*";
-
-            if (openFileDialog.ShowDialog() == true)
+            using (PdfReader reader = new PdfReader(selectedFolderPath))
             {
-                string filePath = openFileDialog.FileName;
-                using (PdfReader reader = new PdfReader(filePath))
+                for (int pNum = 1; pNum < reader.NumberOfPages; pNum++)
+                {
+                    ITextExtractionStrategy strategy = new SimpleTextExtractionStrategy();
+                    string text = PdfTextExtractor.GetTextFromPage(reader, pNum, strategy);
+                    text = Encoding.UTF8.GetString(ASCIIEncoding.Convert(Encoding.Default, Encoding.UTF8, Encoding.Default.GetBytes(text)));
+                    sb.Append(text);
+                }
+            }
+            MessageBox.Show(GetCode(sb.ToString()));
+            MessageBox.Show(GetRevisionNumber(sb.ToString()));
+            /*string[] files = Directory.GetFiles(selectedFolderPath, "*.pdf");
+            int fileCount = files.Length;
+            StringBuilder[] sbs = new StringBuilder[fileCount];
+
+            for (int f = 0; f < fileCount; f++) 
+            {
+                using (PdfReader reader = new PdfReader(files[f]))
                 {
                     for (int pNum = 1; pNum < reader.NumberOfPages; pNum++)
                     {
                         ITextExtractionStrategy strategy = new SimpleTextExtractionStrategy();
                         string text = PdfTextExtractor.GetTextFromPage(reader, pNum, strategy);
                         text = Encoding.UTF8.GetString(ASCIIEncoding.Convert(Encoding.Default, Encoding.UTF8, Encoding.Default.GetBytes(text)));
-                        sb.Append(text);
+                        sbs[f].Append(text);
                     }
                 }
-
             }
 
-            //Testing how our lib exrtract info to the txt file
+            for (int t = 0; t < sbs.Length; t++)
+            {
+                using (StreamWriter outputFile = new StreamWriter(System.IO.Path.Combine("C:/Users/amusaev/Desktop/task/txtoutput",  $"File{t+1}.txt")))
+                {
+                    outputFile.WriteLine(sbs[t]);
+                }
+            }*/
+
+            /*Testing how our lib exrtract info to the txt file
 
             using (StreamWriter outputFile = new StreamWriter(System.IO.Path.Combine("C:/Users/amusaev/Desktop/task", "File3.txt")))
             {
                 outputFile.WriteLine(sb);
-            }
-
-            // Extract code
-            MessageBox.Show(GetCode(sb.ToString()));
-
-
-            //Extract last number of changes
-            MessageBox.Show(GetRevisionNumber(sb.ToString()));
-
-
+            }*/
         }
+
         private string GetCode(string text)
         {
-            /*TODO:
-             [1] - разобраться почему анализ текста начинается не сначала файла и исправить это
-             [2] - Дать возможность пользователю добавить свой паттерн
-            */
-            string codePattern = @"^.+-[^-]+-[^-]+$";
-            string code = "";
+            string codePattern = @"^\d+-\d+/\d+-\d+-\d+-.+$";
             string[] words = Regex.Split(text, " ");
 
             foreach (string word in words)
             {
                 if (Regex.IsMatch(word, codePattern))
                 {
-                    code = word;
+                    return word;
                 }
 
             }
-            return code;
+            return "не найден";
         }
         private string GetRevisionNumber(string text)
         {
             /*TODO:
-             [1] - Протестировать текущий паттерн для первого файла
-             [2] - Реализовать возможность вариировать шаблоны ???
+             [1] - Реализовать возможность вариировать шаблоны ???
             */
-            string tablePattern = @"^(\d)\s.+(\d{1,2}\.\d{1,2}\.\d{2,4})";
-            string revision = "";
-            string[] lines = Regex.Split(text, "\n");
-            Array.Reverse(lines);
+            string tablePattern = @"(?<num>\d+) \d+-\d+ (?<date>\d{1,2}.\d{1,2}.\d{1,2})";
+            var rg = new Regex(tablePattern, RegexOptions.RightToLeft);
 
-            foreach (string line in lines)
-            {
-                if (Regex.IsMatch(line, tablePattern))
-                {
-                    Match match = Regex.Match(text, tablePattern);
-                    revision = match.Groups[1].Value;
-                }
-
-            }
-            return Convert.ToString(revision);
+            Match matchedChange = rg.Match(text);
+            if (matchedChange.Success)
+               return matchedChange.Groups["num"].Value;
+            return "не менялся";
         }
 
     }
