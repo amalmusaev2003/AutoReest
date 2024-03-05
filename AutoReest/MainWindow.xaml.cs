@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using System.Text;
@@ -9,7 +10,10 @@ using System.Text.RegularExpressions;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.parser;
 
-
+using Tabula;
+using Tabula.Detectors;
+using Tabula.Extractors;
+using UglyToad.PdfPig;
 
 namespace AutoReest
 {
@@ -27,6 +31,8 @@ namespace AutoReest
         {
             /*TODO:
              [1] - Разобраться как выбирать папку с файлами
+             [2] - Написать тесты
+             [3] - Разделить бэкенд и фронтенд
              */
 
             OpenFileDialog dialog = new OpenFileDialog();
@@ -38,6 +44,7 @@ namespace AutoReest
                 string selectedFolderPath = dialog.FileName;
 
                 ProcessPdf(selectedFolderPath);
+
             }
         }
 
@@ -55,33 +62,10 @@ namespace AutoReest
                     sb.Append(text);
                 }
             }
-            MessageBox.Show(GetCode(sb.ToString()));
-            MessageBox.Show(GetRevisionNumber(sb.ToString()));
-            /*string[] files = Directory.GetFiles(selectedFolderPath, "*.pdf");
-            int fileCount = files.Length;
-            StringBuilder[] sbs = new StringBuilder[fileCount];
+            
+            //MessageBox.Show(GetCode(sb.ToString()));
+            //MessageBox.Show(GetRevisionNumber(sb.ToString()));
 
-            for (int f = 0; f < fileCount; f++) 
-            {
-                using (PdfReader reader = new PdfReader(files[f]))
-                {
-                    for (int pNum = 1; pNum < reader.NumberOfPages; pNum++)
-                    {
-                        ITextExtractionStrategy strategy = new SimpleTextExtractionStrategy();
-                        string text = PdfTextExtractor.GetTextFromPage(reader, pNum, strategy);
-                        text = Encoding.UTF8.GetString(ASCIIEncoding.Convert(Encoding.Default, Encoding.UTF8, Encoding.Default.GetBytes(text)));
-                        sbs[f].Append(text);
-                    }
-                }
-            }
-
-            for (int t = 0; t < sbs.Length; t++)
-            {
-                using (StreamWriter outputFile = new StreamWriter(System.IO.Path.Combine("C:/Users/amusaev/Desktop/task/txtoutput",  $"File{t+1}.txt")))
-                {
-                    outputFile.WriteLine(sbs[t]);
-                }
-            }*/
 
             /*Testing how our lib exrtract info to the txt file
 
@@ -111,6 +95,7 @@ namespace AutoReest
             /*TODO:
              [1] - Реализовать возможность вариировать шаблоны ???
             */
+            
             string tablePattern = @"(?<num>\d+) \d+-\d+ (?<date>\d{1,2}.\d{1,2}.\d{1,2})";
             var rg = new Regex(tablePattern, RegexOptions.RightToLeft);
 
@@ -119,6 +104,11 @@ namespace AutoReest
                return matchedChange.Groups["num"].Value;
             return "не менялся";
         }
+
+        /*private string GetRevisionNumberParse(string path)
+        {
+
+        }*/
 
     }
 }
