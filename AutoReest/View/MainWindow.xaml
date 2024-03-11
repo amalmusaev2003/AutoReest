@@ -7,7 +7,6 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <TextBox x:Name="txtInput"/>
-        <Button Content="Explore" Click="LoadBtn_Click" Width="60" Height="30" Background="#FFFFA400" Foreground="White" />
+        <Button Content="Выбрать файл" Height="30" Background="#FFFFA400" Foreground="White" Command="{Binding SelectFileCommand}" Margin="336,197,336,207" />
     </Grid>
 </Window>
