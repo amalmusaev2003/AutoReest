@@ -9,20 +9,32 @@ namespace AutoReest.Services
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static TableData ToTableData(this string value)
+        public static TableData ToTableData(this string value, bool isCorrectPage)
         {
             if (string.IsNullOrEmpty(value))
                 return null;
 
             var splitString = value.Split(' ');
-            var table = new TableData()
+            if (splitString[0] == null || splitString[0] == " " || !int.TryParse(splitString[0], out int result) || !isCorrectPage)
             {
-                NumberOfColumn = splitString[0],
-                NumberOfDocument = splitString[1],
-                Date = splitString[2]
-            };
+                var table = new TableData()
+                {
+                    NumberOfColumn = null,
+                    NumberOfDocument = null,
+                    Date = null
+                };
+                return table;
+            }
+            else {
+                var table = new TableData()
+                {
+                    NumberOfColumn = splitString[0],
+                    NumberOfDocument = splitString[1],
+                    Date = splitString[2]
+                };
 
-            return table;
+                return table;
+            }
         }
 
         public static string[] ToStrings(this System.Text.RegularExpressions.MatchCollection collection)

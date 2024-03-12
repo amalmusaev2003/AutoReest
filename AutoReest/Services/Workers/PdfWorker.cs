@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
 using System;
 using System.Windows;
+using System.IO;
 
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.parser;
+using System.Text.RegularExpressions;
 using AutoReest.Services.RegexPatterns;
+using System.Text;
 
 namespace AutoReest.Services.Workers
 {
@@ -26,16 +29,14 @@ namespace AutoReest.Services.Workers
         /// </summary>
         /// <param name="pageNum"></param>
         /// <returns></returns>
-        public string FindNotation(int pageNum) =>
-            PdfTextPatterns.NotationRegex.Match(_pageContents[pageNum]).Value;
+        public string FindNotation(int pageNum) => PdfTextPatterns.NotationRegex.Match(_pageContents[pageNum]).Value;
 
         /// <summary>
         /// Находит таблицу в документе при помощи Regex
         /// </summary>
         /// <param name="pageNum"></param>
         /// <returns></returns>
-        public string[] FindTable(int pageNum) =>
-            PdfTextPatterns.TableRegex.Matches(_pageContents[pageNum]).ToStrings();
+        public string[] FindTable(int pageNum) => PdfTextPatterns.TableRegex.Matches(_pageContents[pageNum]).ToStrings();
 
         public int GetPageNumbers() => _pdfReader.NumberOfPages;
 
@@ -50,6 +51,12 @@ namespace AutoReest.Services.Workers
             {
                 MessageBox.Show("Не удалось получить текст страницы...");
             }
+        }
+        
+        public void PdfToTxt()
+        {
+            string filePath = "C:/Users/amusaev/Desktop/task/File3.txt";
+            File.WriteAllLines(filePath, _pageContents);
         }
     }
 }

@@ -19,13 +19,16 @@ namespace AutoReest.Services.Workers
                 var table = worker.FindTable(i);
 
                 if (!string.IsNullOrWhiteSpace(notation)
-                    && table?.Length != 0)
+                    && (table?.Length != 0))
                 {
                     data.Notation = notation;
-                    data.Data = table.Last().ToTableData();
-
+                    if (i == 1 || i == 2)
+                        data.Data = table.Last().ToTableData(true);
+                    else 
+                        data.Data = table.Last().ToTableData(false);
+                    
                     return data;
-                }
+                } 
             }
 
             return null;

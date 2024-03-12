@@ -5,7 +5,7 @@ namespace AutoReest.Services.RegexPatterns
     public static partial class PdfTextPatterns
     {
         public const string NOTATION = "\\d+-\\d+\\/\\d+-\\d+-\\d+-\\S+";
-        public const string TABLE = "\\d( )+?(\\d+-\\d+)?( )?(\\d+?.\\d+.?\\d+)";
+        public const string TABLE = "\\d(\\s)+?(\\d+-\\d+)?( )?(\\d+?.\\d+.?\\d+)";
 
         private static Regex notationRegex = new Regex(NOTATION);
         private static Regex tableRegex = new Regex(TABLE);

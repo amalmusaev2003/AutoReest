@@ -8,8 +8,8 @@ namespace AutoReest.Model
 {
     public class TableData
     {
-        public string NumberOfColumn { get; set; }
-        public string NumberOfDocument { get; set; }
-        public string Date { get; set; }
+        public string? NumberOfColumn { get; set; }
+        public string? NumberOfDocument { get; set; }
+        public string? Date { get; set; }
     }
 }
